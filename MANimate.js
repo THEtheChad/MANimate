@@ -14,7 +14,15 @@
 // Example:
 //      animate(function(){ return loopsUntilFalsy });
 //
-var animate = (function(w){
+;(function(w){
+
+    // Expose the public API
+    w.animate = function(cb){
+        // Add the callback to our queue
+        // If the queue was empty before,
+        // initiate the loop
+        queue.push(cb) == 1 && frame(loop);
+    };
 
     // vendor specific animation frame identification
     // with setimeout fallback - Paul Irish
@@ -41,12 +49,5 @@ var animate = (function(w){
             // in the queue
             queue.length && frame(loop);
         };
-
-    // Returns our public API
-    return function(func){
-        // Add the callback to our queue
-        // If the queue was empty before,
-        // initiate the loop
-        queue.push(func) == 1 && frame(loop);
-    };
+        
 })(window);
