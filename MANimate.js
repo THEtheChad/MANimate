@@ -3,50 +3,47 @@
  * Copyright 2011 THEtheChad Elliott
  * Released under the MIT and GPL licenses.
  */
-
-// MANimate accepts a callback function that runs
-// inside an AnimationFrame loop. Each loop
-// walks over all MANimate callbacks.
-//  
-// @input function
-//
-// Example:
-//      animate(function(){ return loopsUntilFalsy });
-//
-;(function(w){
-
-    // Expose the public API
-    w.MANimate = function(cb){
-        // Add the callback to our queue
-        // If the queue was empty before,
-        // initiate the loop
-        queue.push(cb) == 1 && frame(loop);
-    };
-
-    // vendor specific AnimationFrame identification
-    // with setimeout fallback - Paul Irish
+ 
+(function(w){
     var frame = w.requestAnimationFrame       || 
                 w.webkitRequestAnimationFrame || 
                 w.mozRequestAnimationFrame    || 
                 w.oRequestAnimationFrame      || 
                 w.msRequestAnimationFrame     || 
-                function( callback ){
-                    window.setTimeout(callback, 1000 / 60);
+                function(callback){
+                    w.setTimeout(callback, 1000 / 60);
                 },
-        queue = [],
-        loop = function(timestamp){
-            var i = queue.length;
+        q = [],
+        lastFrame,
+        loop = function(timeStamp){
+            var i = q.length,
+                // date instance is a fallback for setTimeout
+                thisFrame = timeStamp || +new Date(),
+                deltaT = thisFrame - lastFrame;
 
-            // While there are callbacks to be performed
-            while(i)
-                // Execute callback and remove the callback
-                // if there is a falsy response
-                if(queue[--i](timestamp) == 0)
-                    queue.splice(i, 1);
+            // Do not render frames if too much time has ellapsed
+            if(deltaT < 160)
+                // Loop through all of our animations
+                while(i)
+                    // If an animation returns falsy, remove it from the queue
+                    if(q[--i](deltaT) == 0)
+                        q.splice(i,1);
             
-            // Continue the loop as long as there are callbacks
-            // in the queue
-            queue.length && frame(loop);
+            // If there are still animations in the queue, continue to loop
+            if(q.length){
+                lastFrame = thisFrame;
+                frame(loop);
+            }
         };
-        
+    
+    // public API
+    // @input function( msBetweenFrames //integer )
+    w.MANimate =  function(callback){
+        // Add animation to the queue
+        // If this is the first animation, kickstart the loop
+        if(q.push(callback) == 1){
+            lastFrame = +new Date();
+            frame(loop);
+        }
+    };
 })(window);
