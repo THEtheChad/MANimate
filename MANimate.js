@@ -1,6 +1,7 @@
 /**!
  * @preserve MANimate
  * Copyright 2011 THEtheChad Elliott
+ * https://github.com/THEtheChad/MANimate
  * Released under the MIT and GPL licenses.
  */
  
