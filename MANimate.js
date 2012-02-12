@@ -15,26 +15,20 @@
                     w.setTimeout(callback, 1000 / 60);
                 },
         q = [],
-        lastFrame,
         loop = function(timeStamp){
             var i = q.length,
                 // date instance is a fallback for setTimeout
-                thisFrame = timeStamp || +new Date(),
-                deltaT = thisFrame - lastFrame;
+                thisFrame = timeStamp || +new Date();
 
-            // Do not render frames if too much time has ellapsed
-            if(deltaT < 160)
-                // Loop through all of our animations
-                while(i)
-                    // If an animation returns falsy, remove it from the queue
-                    if(q[--i](deltaT) == 0)
-                        q.splice(i,1);
+           // Loop through all of our animations
+           while(i)
+               // If an animation returns falsy, remove it from the queue
+               if(q[--i](thisFrame) == 0)
+                   q.splice(i,1);
             
             // If there are still animations in the queue, continue to loop
-            if(q.length){
-                lastFrame = thisFrame;
+            if(q.length)
                 frame(loop);
-            }
         };
     
     // public API
@@ -42,9 +36,7 @@
     w.MANimate =  function(callback){
         // Add animation to the queue
         // If this is the first animation, kickstart the loop
-        if(q.push(callback) == 1){
-            lastFrame = +new Date();
+        if(q.push(callback) == 1)
             frame(loop);
-        }
     };
 })(window);
